@@ -160,9 +160,16 @@ end
 function setfont(ctx::CairoContext, font::Font)
 	FSCALE = DTPPOINTS_PER_INCH/96 #Pango appears to be preset to 96 PPI
 	Cairo.set_source(ctx, font.color)
-	weight = font.bold ? " bold" : ""
-	facestr = @sprintf("%s%s %0.1f", font.name, weight, font._size*FSCALE)
-	Cairo.set_font_face(ctx, facestr)
+
+	if !Sys.iswindows()
+	   weight = font.bold ? " bold" : ""
+	   facestr = @sprintf("%s%s %0.1f", font.name, weight, font._size*FSCALE)
+	   Cairo.set_font_face(ctx, facestr)
+	else	   
+	   weight = font.bold ? Cairo.FONT_WEIGHT_BOLD : Cairo.FONT_WEIGHT_NORMAL
+	   Cairo.select_font_face(ctx, font.name, Cairo.FONT_SLANT_NORMAL, weight)
+	   Cairo.set_font_size(ctx, font._size*FSCALE)
+	end
 end
 
 #Render text using "advanced" properties.
